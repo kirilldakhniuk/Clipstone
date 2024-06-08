@@ -9,8 +9,6 @@ new class extends Component {
 
     public bool $drawer = false;
 
-    public array $sortBy = ['column' => 'created_at', 'direction' => 'desc'];
-
     public function copy(Clip $clip): void
     {
         Clipboard::text($clip->content);
@@ -30,11 +28,17 @@ new class extends Component {
 
     public function clips(): Collection
     {
-        return Clip::all()
-            ->sortBy([[...array_values($this->sortBy)]])
-            ->when($this->search, function (Collection $collection) {
-                return $collection->filter(fn(Clip $item) => str($item['content'])->contains($this->search, true));
-            });
+        if ($this->search) {
+            return Clip::search($this->search)
+                ->take(cache('limit', 10))
+                ->latest()
+                ->get();
+        }
+
+        return Clip::query()
+            ->limit(cache('limit', 10))
+            ->latest()
+            ->get();
     }
 
     public function with(): array
@@ -48,8 +52,8 @@ new class extends Component {
 
 <div>
     <x-header>
-        <x-slot:middle>
-               <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+        <x-slot:middle class="!order-first">
+            <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
         </x-slot:middle>
         <x-slot:actions>
             <x-button icon="o-cog-6-tooth" link="{{ route('settings') }}" />

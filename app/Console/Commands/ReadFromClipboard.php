@@ -10,7 +10,7 @@ class ReadFromClipboard extends Command
 {
     protected $signature = 'read:from-clipboard';
 
-    protected $description = 'Command description';
+    protected $description = 'Temporary workaround';
 
     public function handle(): void
     {
@@ -22,18 +22,6 @@ class ReadFromClipboard extends Command
                 [
                     'content' => Clipboard::text(),
                     'type' => 'text',
-                ]
-            );
-        }
-
-        if (Clipboard::image() !== null) {
-            Clip::query()->firstOrCreate(
-                [
-                    'content' => Clipboard::image(),
-                ],
-                [
-                    'content' => Clipboard::image(),
-                    'type' => 'image',
                 ]
             );
         }
